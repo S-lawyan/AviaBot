@@ -1,3 +1,6 @@
 venv
 .idea
 .gitignore
+config.yaml
+**__pycache__
+logs/*
