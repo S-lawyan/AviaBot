@@ -2,6 +2,7 @@ bot:
   token: token
   api_token: 123456aviasalesiptoken
   channel_id: 123456789
+  language: ru
 
 bd:
   host: localhost

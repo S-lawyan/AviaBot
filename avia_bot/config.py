@@ -9,6 +9,7 @@ class BotConfig(BaseModel):
     bot_token: SecretStr
     api_token: SecretStr
     channel_id: int
+    language: str
 
 
 class DatabaseConfig(BaseModel):
@@ -36,19 +37,25 @@ class Settings(BaseModel):
 
 def load_config(config_path: str) -> Settings:
     try:
-        with open(file=config_path, mode="r") as file:
+        with open(config_path, "r") as file:
             dictionary: dict = yaml.load(stream=file, Loader=yaml.FullLoader)
-            config: Settings = Settings.model_validate(dictionary)
-        return config
+            _config: Settings = Settings.model_validate(dictionary)
+        return _config
 
     except FileNotFoundError:
-        logger.error(f"The configuration file is missing along the path: {file_path}")
+        logger.error(f"Конфигурационный файл отсутствует по пути: {config_path}")
 
     except yaml.YAMLError as exception:
-        logger.error(f"Error loading YAML: {exception}")
+        logger.error(f"Ошибка при загрузке YAML: {exception}")
 
     except Exception as e:
-        logger.error(f"An UNUSUAL  error occurred while loading the configuration file:: {e}")
+        logger.error(f"Необычная ошибка при загрузке конфигурационного файла: {e}")
 
+# Получаю директорию бота
+BOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Получаю директорию проекта
+PROJECT_DIR = os.path.dirname(BOT_DIR)
+# Подгружаю конфиги и запускаю бота
+config: Settings = load_config(config_path=os.path.join(PROJECT_DIR,"config.yaml"))
 
-__all__ = ["Settings", "load_config"]
+__all__ = ["config", "Settings"]
