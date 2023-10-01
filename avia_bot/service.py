@@ -16,25 +16,13 @@ class BotService: #ServiceWithGracefulShutdown
         self.dp = Dispatcher(self.bot, storage=MemoryStorage())
         client.register_handlers_client(self.dp)
 
-    # async def start(self) -> None:
-    #     asyncio.create_task(self.start_bot())
-
-    # async def stop(self) -> None:
-    #     pass
-
     async def start_bot(self) -> None:
         await self.dp.skip_updates() # Отключение ответ на команды из очереди пока был выключен
-        try:
-            logger.info("The bot is running!")
-            await self.dp.start_polling(self.bot)
-        except:
-            pass
-        # executor.start_polling(
-        #     self.dp,
-        #     skip_updates=True,
-        #     on_startup=on_startup,
-        #     on_shutdown=on_shutdown
-        # )
+        logger.info("The bot is running!")
+        await self.dp.start_polling(self.bot)
+
+    async def stop_bot(self) -> None:
+        await self.dp.stop_polling()
 
     async def send_alerts_to_group(self, group_id: int) -> None:
         pass

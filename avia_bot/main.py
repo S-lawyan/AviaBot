@@ -3,6 +3,7 @@ import asyncio
 from loguru import logger
 from avia_bot.service import BotService
 from avia_bot.config import config
+from database.mysqldb import database
 
 async def main():
     logger.add(
@@ -12,8 +13,13 @@ async def main():
             compression="zip",
             level="DEBUG",
         )
-    bot = BotService(config)
-    await bot.start_bot()
+    try:
+        bot = BotService(config)
+        await database.create_pool()
+        await bot.start_bot()
+    finally:
+        await bot.stop_bot()
+        await database.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
