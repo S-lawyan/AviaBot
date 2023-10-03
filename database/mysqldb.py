@@ -32,7 +32,6 @@ class DataBaseService:
                 result = await cur.fetchall()
         return result
 
-
     async def close(self):
         self.db_pool.close()
         await self.db_pool.wait_closed()
@@ -44,5 +43,15 @@ class DataBaseService:
         async with self.db_pool.acquire() as conn:
             async with conn.cursor() as cur:
                 await cur.execute(query)
+
+    async def get_directions(self):
+        query = """ SELECT * FROM directions """
+        return await self.execute_query(query)
+        # TODO Сделать, чтобы функция возвращала список классов Direction
+
+    # async def get_tickets(self, id_direction: int):
+    #     query = f""" SELECT * FROM tickets WHERE id_direction = {id_direction} """
+    #     result = await self.execute_query(query)
+    #     # TODO Сделать, чтобы функция возвращала список классов Tickets
 
 database = DataBaseService(config)

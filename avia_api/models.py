@@ -11,3 +11,11 @@ class Ticket:
     destination_code: str
     link: str
     departure_at: datetime
+
+@dataclass(frozen=True, kw_only=True)
+class Direction:
+    id_direction: int
+    origin: str
+    destination: str
+    max_price: int
+    count_posts: int
