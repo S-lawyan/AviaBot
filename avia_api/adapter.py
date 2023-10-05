@@ -7,6 +7,11 @@ from avia_bot.config import config
 from loguru import logger
 from datetime import datetime
 from avia_api.models import Ticket
+from avia_api.exceptions import (
+    TicketApiConnectionError,
+    TicketsAPIError,
+    TicketsParsingError
+)
 
 class TicketsApi:
     def __init__(self, http_session_maker):
@@ -25,22 +30,20 @@ class TicketsApi:
                     destination,
                     locale=self.locale,
                     currency=self.currency,
-                    # airline, # TODO сделать так, чтобы если будет указана авиакомпания, то присваивать, иначе None
-                    # market, # TODO какой-то маркет источника данных, по умолчанию стоит RU
                     token=self.api_token.get_secret_value()
                 )
         except asyncio.TimeoutError:
             logger.error(f"Запрос билетов вылетел по таймауту")
-            # TODO raise Вызвать исключение
+            raise TicketApiConnectionError()
         except ClientConnectionError as e:
             logger.error(f"Ошибка получения билетов: {e}")
-            # TODO raise Вызвать исключение
+            raise TicketApiConnectionError()
         json_response = json.loads(response)
         if "error" in response:
             logger.error(
                 f'Ошибка при получении билета: ошибка {json_response["error"]}, направление: из {origin} в {destination}'
             )
-            # TODO raise вызвать исключение
+            raise TicketsAPIError()
         return parse_ticket(json_response)
 
 
@@ -50,8 +53,6 @@ async def get_ticket_response(
     destination,
     locale,
     currency,
-    # airline,
-    # market,
     token
 ) -> str:
     requests_url = "https://api.travelpayouts.com/aviasales/v3/get_special_offers"
@@ -60,8 +61,6 @@ async def get_ticket_response(
     "destination": destination,
     "locale": locale,
     "currency": currency,
-    # "airline": airline,
-    # "market": market,
     "token": token
     }
 
@@ -72,24 +71,21 @@ async def get_ticket_response(
 def parse_ticket(json_response) -> Ticket:
     if "data" not in json_response:
         logger.error(f"Непонятный ответ от Aviasales: {json_response}")
-        # TODO raise
+        raise TicketsParsingError
     json_ticket = json_response["data"][0]
     # Получение информации о билете
-    price = float(json_ticket["price"])
-    origin_name = json_ticket["origin_name"]
-    origin_code = json_ticket["origin_airport"]
-    destination_name = json_ticket["destination_name"]
-    destination_code = json_ticket["destination"]
-    link = json_ticket["link"]
-    departure_at = datetime_from_ticket(json_ticket["departure_at"]) #2023-10-11 08:45:00
+    price: float = float(json_ticket["price"])
+    origin_name: str = json_ticket["origin_name"]
+    destination_name: str = json_ticket["destination_name"]
+    link: str = json_ticket["link"]
+    departure_at: datetime = datetime_from_ticket(json_ticket["departure_at"]) #2023-10-11 08:45:00
     return Ticket(
         price=price,
-        origin_code=origin_code,
         origin_name=origin_name,
         destination_name=destination_name,
-        destination_code=destination_code,
         link=link,
-        departure_at=departure_at
+        departure_at=departure_at,
+        last_update=None
     )
 
 

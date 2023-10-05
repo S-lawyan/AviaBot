@@ -9,6 +9,7 @@ from avia_bot.handlers import *
 from avia_api.http_session import HttpSessionMaker
 from avia_api.adapter import TicketsApi
 from avia_api.models import Ticket
+from avia_api.models import Direction
 from aiohttp import ClientSession
 
 # from graceful_shutdown.service import ServiceWithGracefulShutdown
@@ -36,13 +37,25 @@ class BotService: #ServiceWithGracefulShutdown
     async def stop_bot(self) -> None:
         self.dp.stop_polling()
 
-    async def send_alerts_to_group(self, ticket: Ticket) -> None:
+    async def first_notify_group(self, new_ticket: Ticket, direction: Direction) -> None:
+        channel_id: int = self.config.bot.channel_id
+        msg = f"""
+        Добавлено новое направление!
+        {direction.origin} ➡️ {direction.destination} 
+        🛫 {new_ticket.departure_at}
+        💳 {int(new_ticket.price)} ₽ | <a href="{new_ticket.link}">купить билет</a>
+        """
+        await self.bot.send_message(chat_id=channel_id, text=msg)
+
+    async def send_alerts_to_group(self, new_ticket: Ticket, direction: Direction) -> None:
         channel_id: int = self.config.bot.channel_id
         # TODO отправка в канал по channel_id шаблонного сообщения про билетик
-        await self.bot.send_message(chat_id=channel_id, text=f"""
-        Направление: из {ticket.origin_name} в {ticket.destination_name}\nЦена: {ticket.price}\n<a href="{ticket.link}">купить билет</a>
-        """)
-        pass
+        msg = f"""
+        {direction.origin} ➡️ {direction.destination} 
+        🛫 {new_ticket.departure_at}
+        💳 {int(new_ticket.price)} ₽ | <a href="{new_ticket.link}">купить билет</a>
+        """
+        await self.bot.send_message(chat_id=channel_id, text=msg)
 
 
 

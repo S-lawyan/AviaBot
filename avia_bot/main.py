@@ -6,7 +6,6 @@ from avia_bot.config import config
 from database.mysqldb import database
 from scheduler.scheduler import ServiceScheduler
 from apscheduler.schedulers.async_ import AsyncScheduler
-from avia_api.adapter import TicketsApi
 from avia_api.http_session import HttpSessionMaker
 from scheduler.direction_update import DirectionUpdate
 

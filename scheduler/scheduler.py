@@ -30,13 +30,14 @@ class ServiceScheduler:
     async def _schedule_direction_updater(self):
         if self.scheduler_update_directions:
             await self.scheduler.remove_schedule(self.scheduler_update_directions)
-        db_trigger = 20
+        db_trigger = 5
         db_interval = "seconds" # "minutes" or "seconds"
         if db_interval == "minutes":
             trigger = IntervalTrigger(minutes=db_trigger)
         else:
             trigger = IntervalTrigger(seconds=db_trigger)
-        # будет выполняться каждый 10 единиц времени
+        # Задача будет выполняться каждые 10 единиц времени по циклу.
+        # То есть, после старта новая задача начнется несмотря на то, что предыдущая не завершилась.
         self.scheduler_update_directions = await self.scheduler.add_schedule(
             self.direction_update.update,
             trigger)
