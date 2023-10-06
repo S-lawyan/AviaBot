@@ -28,9 +28,9 @@ class TicketsApi:
                     self.session,
                     origin,
                     destination,
-                    locale=self.locale,
-                    currency=self.currency,
-                    token=self.api_token.get_secret_value()
+                    self.locale,
+                    self.currency,
+                    self.api_token.get_secret_value()
                 )
         except asyncio.TimeoutError:
             logger.error(f"Запрос билетов вылетел по таймауту")
@@ -77,22 +77,28 @@ def parse_ticket(json_response) -> Ticket:
     price: float = float(json_ticket["price"])
     origin_name: str = json_ticket["origin_name"]
     destination_name: str = json_ticket["destination_name"]
-    link: str = json_ticket["link"]
-    departure_at: datetime = datetime_from_ticket(json_ticket["departure_at"]) #2023-10-11 08:45:00
+    destination_code: str = json_ticket["destination"] #destination_airport
+    link: str = "https://www.aviasales.ru" + json_ticket["link"]
+    departure_at: str = datetime_from_ticket(json_ticket["departure_at"]) #2023-10-11 08:45:00
     return Ticket(
         price=price,
         origin_name=origin_name,
         destination_name=destination_name,
+        destination_code=destination_code,
         link=link,
         departure_at=departure_at,
         last_update=None
     )
 
 
-def datetime_from_ticket(datetime_str: str) -> datetime:
+def datetime_from_ticket(datetime_str: str) -> str:
     """Конвертация даты и времени из API ответа в читаемый формат"""
-    return datetime.strptime(
-        str(datetime_str)[: len(datetime_str) - 9], "%Y-%m-%dT%H:%M"
-    )
+    input_datetime = datetime.strptime(datetime_str[:19], "%Y-%m-%dT%H:%M:%S")
+    return input_datetime.strftime("%Y.%m.%d • %H:%M")
 
-# aviasales_api = TicketsApi()
+# def datetime_from_ticket(datetime_str: str) -> datetime:
+#     """Конвертация даты и времени из API ответа в читаемый формат"""
+#     return datetime.strptime(
+#         str(datetime_str)[: len(datetime_str) - 9], "%Y-%m-%dT%H:%M"
+#     )
+

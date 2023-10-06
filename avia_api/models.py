@@ -7,6 +7,7 @@ class Ticket:
     price: float
     origin_name: str
     destination_name: str
+    destination_code: str
     link: str
     departure_at: datetime | str
     last_update: str | None
@@ -14,8 +15,10 @@ class Ticket:
 @dataclass(frozen=True, kw_only=True)
 class Direction:
     id_direction: int
-    origin: str
-    destination: str
+    direction_from: str
+    direction_to: str
+    origin_code: str
+    destination_code: str
     max_price: int
     count_posts: int
 

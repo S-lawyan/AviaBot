@@ -37,25 +37,26 @@ class BotService: #ServiceWithGracefulShutdown
     async def stop_bot(self) -> None:
         self.dp.stop_polling()
 
-    async def first_notify_group(self, new_ticket: Ticket, direction: Direction) -> None:
+    async def first_notify_group(self, ticket: Ticket, direction: Direction) -> None:
         channel_id: int = self.config.bot.channel_id
         msg = f"""
         Добавлено новое направление!
-        {direction.origin} ➡️ {direction.destination} 
-        🛫 {new_ticket.departure_at}
-        💳 {int(new_ticket.price)} ₽ | <a href="{new_ticket.link}">купить билет</a>
+        {ticket.origin_name} ➡️ {ticket.destination_name} 
+        🛫 {ticket.departure_at}
+        💳 {int(ticket.price)} ₽ | <a href="{ticket.link}">купить билет</a>
         """
         await self.bot.send_message(chat_id=channel_id, text=msg)
 
-    async def send_alerts_to_group(self, new_ticket: Ticket, direction: Direction) -> None:
+    async def send_alerts_to_group(self, ticket: Ticket, direction: Direction) -> None:
         channel_id: int = self.config.bot.channel_id
         # TODO отправка в канал по channel_id шаблонного сообщения про билетик
-        msg = f"""
-        {direction.origin} ➡️ {direction.destination} 
-        🛫 {new_ticket.departure_at}
-        💳 {int(new_ticket.price)} ₽ | <a href="{new_ticket.link}">купить билет</a>
-        """
-        await self.bot.send_message(chat_id=channel_id, text=msg)
+        msg = (
+        f"{direction.direction_from} ➡️ {direction.direction_to}\n\n"
+        f"<b>{ticket.origin_name} ({direction.destination_code})</b>\n"
+        f"🛫 {ticket.departure_at}\n"
+        f"💳 {int(ticket.price)} ₽ | <a href='{ticket.link}'>купить билет</a>"
+        )
+        await self.bot.send_message(chat_id=channel_id, text=msg, parse_mode="html")
 
 
 

@@ -14,3 +14,6 @@ class TicketsParsingError(TicketsError):
 
 class DatabaseAddTicketError(Exception):
     pass
+
+class DatabaseUpdateTicketError(Exception):
+    pass

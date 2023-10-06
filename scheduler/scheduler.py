@@ -5,6 +5,7 @@ from datetime import timedelta
 from apscheduler.schedulers.async_ import AsyncScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.date import DateTrigger
 from database.mysqldb import database
 from avia_api.models import Ticket
 from avia_api.adapter import TicketsApi
@@ -30,12 +31,13 @@ class ServiceScheduler:
     async def _schedule_direction_updater(self):
         if self.scheduler_update_directions:
             await self.scheduler.remove_schedule(self.scheduler_update_directions)
-        db_trigger = 5
+        db_trigger = 10
         db_interval = "seconds" # "minutes" or "seconds"
         if db_interval == "minutes":
             trigger = IntervalTrigger(minutes=db_trigger)
         else:
             trigger = IntervalTrigger(seconds=db_trigger)
+            # trigger = DateTrigger(run_time=datetime.now() + timedelta(seconds=5))
         # Задача будет выполняться каждые 10 единиц времени по циклу.
         # То есть, после старта новая задача начнется несмотря на то, что предыдущая не завершилась.
         self.scheduler_update_directions = await self.scheduler.add_schedule(
