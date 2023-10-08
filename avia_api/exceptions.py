@@ -17,3 +17,6 @@ class DatabaseAddTicketError(Exception):
 
 class DatabaseUpdateTicketError(Exception):
     pass
+
+class DatabaseUpdateDirectionSentPostsError(Exception):
+    pass

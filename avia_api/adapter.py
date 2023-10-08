@@ -15,7 +15,6 @@ from avia_api.exceptions import (
 
 class TicketsApi:
     def __init__(self, http_session_maker):
-        # self.http_session_maker = HttpSessionMaker()
         self.session: ClientSession = http_session_maker()
         self.api_token = config.bot.api_token
         self.currency = "rub"
@@ -69,20 +68,17 @@ async def get_ticket_response(
 
 
 def parse_ticket(json_response) -> Ticket:
-    if "data" not in json_response:
+    if "data" not in json_response or json_response["data"][0] == []:
         logger.error(f"Непонятный ответ от Aviasales: {json_response}")
         raise TicketsParsingError
-    try:
-        json_ticket = json_response["data"][0]
-    except Exception as e:
-        stop = 0
+    json_ticket = json_response["data"][0]
     # Получение информации о билете
     price: float = float(json_ticket["price"])
     origin_name: str = json_ticket["origin_name"]
     destination_name: str = json_ticket["destination_name"]
-    destination_code: str = json_ticket["destination"] #destination_airport
+    destination_code: str = json_ticket["destination"]
     link: str = "https://www.aviasales.ru" + json_ticket["link"]
-    departure_at: str = datetime_from_ticket(json_ticket["departure_at"]) #2023-10-11 08:45:00
+    departure_at: str = datetime_from_ticket(json_ticket["departure_at"])
     return Ticket(
         price=price,
         origin_name=origin_name,

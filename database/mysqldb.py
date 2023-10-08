@@ -6,6 +6,7 @@ from avia_api.models import Ticket
 from datetime import datetime
 from avia_api.exceptions import DatabaseAddTicketError
 from avia_api.exceptions import DatabaseUpdateTicketError
+from avia_api.exceptions import DatabaseUpdateDirectionSentPostsError
 from avia_api.models import PriceSettings, Direction
 
 class DataBaseService:
@@ -87,35 +88,18 @@ class DataBaseService:
             logger.error(f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateTicketError()
 
-    # async def update_datetime(self, ticket: Ticket, direction: Direction):
-    #     try:
-    #         query = f"""
-    #             UPDATE tickets SET
-    #             departure_date='{ticket.departure_at}',
-    #             link='{ticket.link}',
-    #             last_update='{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
-    #             WHERE id_direction={direction.id_direction}
-    #             and destination_code='{direction.destination_code}'
-    #         """
-    #         await self.execute_query(query)
-    #     except Exception as e:
-    #         logger.error(f"Ошибка при обновлении даты билета {direction.id_direction} - {direction.destination_code} : {e}")
-    #         raise DatabaseUpdateTicketError()
-
-    # async def update_price(self, ticket: Ticket, direction: Direction):
-    #     try:
-    #         query = f"""
-    #             UPDATE tickets SET
-    #             price={int(ticket.price)},
-    #             link='{ticket.link}',
-    #             last_update='{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
-    #             WHERE id_direction={direction.id_direction}
-    #             and destination_code='{direction.destination_code}'
-    #         """
-    #         await self.execute_query(query)
-    #     except Exception as e:
-    #         logger.error(f"Ошибка при обновлении цены билета {direction.id_direction} - {direction.destination_code} : {e}")
-    #         raise DatabaseUpdateTicketError()
+    async def update_limit(self, sent_posts: int, direction: Direction):
+        try:
+            query = f"""
+                UPDATE directions SET
+                sent_posts={sent_posts}
+                WHERE id_direction={direction.id_direction}
+            """
+            # and destination_code='{direction.destination_code}'
+            await self.execute_query(query)
+        except Exception as e:
+            logger.error(f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}")
+            raise DatabaseUpdateDirectionSentPostsError()
 
     async def get_settings(self) -> PriceSettings:
         query = """ SELECT * FROM settings """
@@ -125,7 +109,6 @@ class DataBaseService:
     async def get_directions(self):
         query = """ SELECT * FROM directions """
         return await self.execute_query(query)
-        # TODO Сделать, чтобы функция возвращала список классов Direction
 
     async def get_ticket_(self, direction: Direction) -> Ticket | None:
         query = f""" SELECT * FROM tickets WHERE id_direction = {direction.id_direction} 
@@ -142,7 +125,7 @@ def pars_ticket_(response) -> Ticket:
     destination_name: str = data[3]
     destination_code: str = data[4]
     price: float = float(data[5])
-    departure_at: str = data[6] # 2023.10.11 • 08:45
+    departure_at: str = data[6]
     link: str = data[7]
     last_update: str = data[8]
     return Ticket(
@@ -164,8 +147,8 @@ def pars_ticket_(response) -> Ticket:
 
 def pars_settings(response) -> PriceSettings:
     data = response[0]
-    difference: int = data[0]
-    critical_difference: int = data[1]
+    difference: int = data[1]
+    critical_difference: int = data[2]
     return PriceSettings(
         difference=difference,
         critical_difference=critical_difference

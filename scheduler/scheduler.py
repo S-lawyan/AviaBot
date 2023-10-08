@@ -38,8 +38,6 @@ class ServiceScheduler:
         else:
             trigger = IntervalTrigger(seconds=db_trigger)
             # trigger = DateTrigger(run_time=datetime.now() + timedelta(seconds=5))
-        # Задача будет выполняться каждые 10 единиц времени по циклу.
-        # То есть, после старта новая задача начнется несмотря на то, что предыдущая не завершилась.
         self.scheduler_update_directions = await self.scheduler.add_schedule(
             self.direction_update.update,
             trigger)

@@ -21,6 +21,7 @@ class Direction:
     destination_code: str
     max_price: int
     count_posts: int
+    sent_posts: int
 
 @dataclass(frozen=True, kw_only=True)
 class PriceSettings:
