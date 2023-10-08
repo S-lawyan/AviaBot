@@ -286,4 +286,8 @@ async def notify_group(msg: str, bot: BotService):
     await bot.send_alerts_to_group(msg=msg)
 
 async def reset_sent_posts() -> None:
-    await database.reset_limit()
+    try:
+        await database.reset_limit()
+        logger.info("Значения sent_posts сброшены")
+    except DatabaseUpdateDirectionSentPostsError:
+        pass
