@@ -79,11 +79,43 @@ class DataBaseService:
                 departure_date='{ticket.departure_at}', 
                 link='{ticket.link}', 
                 last_update='{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
+                WHERE id_direction={direction.id_direction} 
+                and destination_code='{direction.destination_code}'
             """
             await self.execute_query(query)
         except Exception as e:
             logger.error(f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateTicketError()
+
+    # async def update_datetime(self, ticket: Ticket, direction: Direction):
+    #     try:
+    #         query = f"""
+    #             UPDATE tickets SET
+    #             departure_date='{ticket.departure_at}',
+    #             link='{ticket.link}',
+    #             last_update='{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
+    #             WHERE id_direction={direction.id_direction}
+    #             and destination_code='{direction.destination_code}'
+    #         """
+    #         await self.execute_query(query)
+    #     except Exception as e:
+    #         logger.error(f"Ошибка при обновлении даты билета {direction.id_direction} - {direction.destination_code} : {e}")
+    #         raise DatabaseUpdateTicketError()
+
+    # async def update_price(self, ticket: Ticket, direction: Direction):
+    #     try:
+    #         query = f"""
+    #             UPDATE tickets SET
+    #             price={int(ticket.price)},
+    #             link='{ticket.link}',
+    #             last_update='{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
+    #             WHERE id_direction={direction.id_direction}
+    #             and destination_code='{direction.destination_code}'
+    #         """
+    #         await self.execute_query(query)
+    #     except Exception as e:
+    #         logger.error(f"Ошибка при обновлении цены билета {direction.id_direction} - {direction.destination_code} : {e}")
+    #         raise DatabaseUpdateTicketError()
 
     async def get_settings(self) -> PriceSettings:
         query = """ SELECT * FROM settings """

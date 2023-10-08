@@ -72,7 +72,10 @@ def parse_ticket(json_response) -> Ticket:
     if "data" not in json_response:
         logger.error(f"Непонятный ответ от Aviasales: {json_response}")
         raise TicketsParsingError
-    json_ticket = json_response["data"][0]
+    try:
+        json_ticket = json_response["data"][0]
+    except Exception as e:
+        stop = 0
     # Получение информации о билете
     price: float = float(json_ticket["price"])
     origin_name: str = json_ticket["origin_name"]

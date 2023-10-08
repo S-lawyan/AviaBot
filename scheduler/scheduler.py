@@ -32,7 +32,7 @@ class ServiceScheduler:
         if self.scheduler_update_directions:
             await self.scheduler.remove_schedule(self.scheduler_update_directions)
         db_trigger = 10
-        db_interval = "seconds" # "minutes" or "seconds"
+        db_interval = "minutes" # "minutes" or "seconds"
         if db_interval == "minutes":
             trigger = IntervalTrigger(minutes=db_trigger)
         else:

@@ -20,17 +20,41 @@ class DirectionUpdate:
         self.http_session_maker = http_session_maker
 
     async def update(self):
-        print("Выполняется проверка цены по расписанию")
+        logger.info("Выполняется проверка цены по расписанию")
         # await asyncio.sleep(15)
         api = TicketsApi(self.http_session_maker)
-        directions = await database.get_directions()
-        if len(directions) == 0:
+        _directions: tuple = await database.get_directions()
+        if len(_directions) == 0:
             logger.info("Позиции не заданы, проверка не была выполнена.")
             return
-        for _direction in directions:
-            direction: Direction = await parse_direction(_direction)
-            await get_tickets_api(api, direction, self.bot)
-        logger.info(f"Проверка всех направлений завершена ({len(directions)})")
+        # Все направления
+        all_directions: list = await split_on_subdirection(_directions)
+        settings: PriceSettings = await database.get_settings()
+        # Проход по каждому направлению отдельно
+        for _subdirections in all_directions:
+            updated_tickets = []
+            # Проход по поднаправлениями
+            for subdirection in _subdirections:
+                direction: Direction = await parse_direction(subdirection)
+                new_ticket = await get_tickets_api(api, direction)
+                old_ticket: Ticket = await get_ticket_db(direction=direction, new_ticket=new_ticket)
+                status = await checking_update(
+                    new_ticket=new_ticket,
+                    old_ticket=old_ticket,
+                    direction=direction,
+                    settings=settings,
+                )
+                if status:
+                    updated_tickets.append(new_ticket)
+                else:
+                    continue
+            if len(updated_tickets) != 0:
+                await create_notification(
+                    updated_tickets=updated_tickets,
+                    direction=await parse_direction(_subdirections[0]),
+                    bot=self.bot
+                )
+        logger.info(f"Проверка всех направлений завершена ({len(all_directions)})")
 
 async def parse_direction(direction: tuple):
     id_direction: id = int(direction[0])
@@ -50,47 +74,38 @@ async def parse_direction(direction: tuple):
         count_posts=count_posts
     )
 
-async def get_tickets_api(api: TicketsApi, direction: Direction, bot: BotService):
+
+async def split_on_subdirection(directions: tuple) -> list:
+    result = {}
+    for item in directions:
+        key = item[0]
+        if key not in result:
+            result[key] = []
+        result[key].append(item)
+    return list(result.values())
+
+
+async def get_tickets_api(api: TicketsApi, direction: Direction) -> Ticket:
     await asyncio.sleep(1)
     new_ticket: Ticket = await api.get_ticket(origin=direction.origin_code, destination=direction.destination_code)
-    await get_ticket_db(direction=direction, bot=bot, new_ticket=new_ticket)
-    # TODO Проверки на порог цен и так далее.
+    return new_ticket
 
-async def get_ticket_db(direction: Direction, bot: BotService, new_ticket: Ticket):
-    # TODO ГДЕ-ТО ТУТ ОШИБКА ИЗ-ЗА КОТОРОЙ ДОБАВЛЯЮТСЯ НОВЫЕ БИЛЕТЫ ПО КРУГУ
+
+async def get_ticket_db(direction: Direction, new_ticket: Ticket) -> Ticket | None:
     old_ticket: Ticket | None = await database.get_ticket_(direction=direction)
     if not old_ticket:
         # Первое занесение
         await database.save_ticket(ticket=new_ticket, direction=direction)
         logger.info(f"Добавлен новый билет по направлению: {direction.direction_from} {direction.origin_code} - {direction.direction_to} {direction.destination_code}) new_ticket.destination_code = {new_ticket.destination_code}")
-        # await bot.first_notify_group(ticket=new_ticket, direction=direction)
-        return
-    settings: PriceSettings = await database.get_settings()
-    '''
-        На данном этапе у меня есть информация о старом и новом билетах,
-        которую нужно сравнить, а также у меня есть информация о направлении,
-        которую я тоже использую для создания шапки выходного сообщения.
-    '''
+        return None
+    return old_ticket
 
-    # TODO Проверка на то, обновилась ли цена и время билета
-    # TODO Проверка насколько % цена упала по сравнению со значениями из Settings
-    # TODO Проверка на лимит сообщений
-    # TODO Отправка оповещения в канал
-
-    await checking_update(
-        new_ticket=new_ticket,
-        old_ticket=old_ticket,
-        direction=direction,
-        settings=settings,
-        bot=bot
-    )
 
 async def checking_update(
         new_ticket: Ticket,
         old_ticket: Ticket,
         direction: Direction,
-        settings: PriceSettings,
-        bot: BotService
+        settings: PriceSettings
 ):
     """ Проверка факта обновления цены и в какую сторону >< """
     new_price = new_ticket.price
@@ -98,123 +113,135 @@ async def checking_update(
     new_departure_at = new_ticket.departure_at
     old_departure_at = old_ticket.departure_at
 
+    # Изменения не произошли
+    if new_price == old_price and new_departure_at == old_departure_at:
+        # ничего не делаю
+        return None
 
     # Цена билета превышает указанный порог
-    if new_price >= direction.max_price:
-        # TODO обновить данные
+    elif new_price >= direction.max_price:
         try:
             # Обновление данных билета
             await database.update_ticket(ticket=new_ticket, direction=direction)
-            logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
+            logger.info(f"Превышение максимальной цена билета, обновление БД {direction.id_direction} - {direction.destination_code}")
+            # НЕ отправляю в группу
+            return None
         except DatabaseUpdateTicketError:
-            return
+            return None
 
 
-    # Изменения не произошли
-    elif new_price == old_price and new_departure_at == old_departure_at:
-        # ничего не делаю
-        return
-
-
-    # Цена осталась прежней, дата изменилась
-    elif new_price == old_price and new_departure_at != old_departure_at:
-        # TODO Обновляю дату, отправляю в группу ЧЕРЕЗ ЛИМИТ
-        try:
-            # Обновление данных билета
-            await database.update_ticket(ticket=new_ticket, direction=direction)
-            logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
-        except DatabaseUpdateTicketError:
-            return
-        # Отправляю в группу
-        await notify_group(new_ticket=new_ticket, direction=direction, bot=bot)
-
-
-    # Цена уменьшилась БОЛЕЕ, чем на 20%, время не важно
-    elif (old_price - new_price)/old_price*100 >= settings.critical_difference:
-        # TODO Обновить цену, Отправить сообщение в группу БЕЗ ЛИМИТА
-        try:
-            # Обновление данных билета
-            await database.update_ticket(ticket=new_ticket, direction=direction)
-            logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
-        except DatabaseUpdateTicketError:
-            return
-        # Отправляю в группу
-        await notify_group(new_ticket=new_ticket, direction=direction, bot=bot)
-
-
-    # Цена уменьшилась БОЛЕЕ, чем на 10%, время не важно
-    elif (old_price - new_price)/old_price*100 >= settings.difference:
-        # TODO обновить цену и дату, отправить в группу ЧЕРЕЗ ЛИМИТ
-        try:
-            # Обновление данных билета
-            await database.update_ticket(ticket=new_ticket, direction=direction)
-            logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
-        except DatabaseUpdateTicketError:
-            return
-        # Отправляю в группу
-        await notify_group(new_ticket=new_ticket, direction=direction, bot=bot)
-
-
-    # Цена уменьшилась МЕНЕЕ, чем на 10%
-    elif (old_price - new_price) / old_price * 100 <= settings.difference:
-        # Дата не изменилась, или изменилась
-        if new_departure_at == old_departure_at:
-            # TODO обновляю цену и дату
+    # Цена осталась прежней
+    elif new_price == old_price:
+        if new_departure_at != old_departure_at:
+            # TODO ЧЕРЕЗ ЛИМИТ
             try:
                 # Обновление данных билета
                 await database.update_ticket(ticket=new_ticket, direction=direction)
-                logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
+                logger.info(f"Обновление даты билета {direction.id_direction} - {direction.destination_code}")
+                # Отправляю в группу
+                return True
             except DatabaseUpdateTicketError:
-                return
+                return None
         else:
-            # TODO обновляю цену и дату, отправляю в группу ЧЕРЕЗ ЛИМИТ
+            # НЕ отправляю в группу
+            return None
+
+
+    # Цена уменьшилась
+    if new_price < old_price:
+
+        # Цена уменьшилась БОЛЕЕ, чем на 20%, время не важно
+        if (old_price - new_price)/old_price * 100 >= settings.critical_difference:
             try:
                 # Обновление данных билета
                 await database.update_ticket(ticket=new_ticket, direction=direction)
-                logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
+                logger.info(f"Критическое уменьшение цены билета {direction.id_direction} - {direction.destination_code}")
+                # Отправляю в группу
+                return True
             except DatabaseUpdateTicketError:
-                return
-            # Отправляю в группу
-            await notify_group(new_ticket=new_ticket, direction=direction, bot=bot)
+                return None
 
 
-    # Цена увеличилась МЕНЕЕ, чем на 10%
-    elif (old_price - new_price) / old_price * 100 <= settings.difference:
-        # Дата не изменилась, или изменилась
-        if new_departure_at == old_departure_at:
-            # TODO обновить данные
+        # Цена уменьшилась БОЛЕЕ, чем на 10%, время не важно
+        elif (old_price - new_price) / old_price * 100 >= settings.difference:
+            # TODO ЧЕРЕЗ ЛИМИТ
             try:
                 # Обновление данных билета
                 await database.update_ticket(ticket=new_ticket, direction=direction)
-                logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
+                logger.info(f"Значительное уменьшение цены билета {direction.id_direction} - {direction.destination_code} Оповещение отправлено")
+                # Отправляю в группу
+                return True
             except DatabaseUpdateTicketError:
-                return
-        else:
-            # TODO обновить данные, отправить в группу ЧЕРЕЗ ЛИМИТ
+                return None
+
+
+        # Цена уменьшилась МЕНЕЕ, чем на 10%
+        elif (old_price - new_price) / old_price * 100 <= settings.difference:
+            # Дата не изменилась, или изменилась
+            if new_departure_at == old_departure_at:
+                try:
+                    # Обновление данных билета
+                    await database.update_ticket(ticket=new_ticket, direction=direction)
+                    logger.info(f"Незначительное уменьшение цены билета {direction.id_direction} - {direction.destination_code}")
+                    # НЕ отправляю в группу
+                    return None
+                except DatabaseUpdateTicketError:
+                    return None
+            else:
+                # TODO ЧЕРЕЗ ЛИМИТ
+                try:
+                    # Обновление данных билета
+                    await database.update_ticket(ticket=new_ticket, direction=direction)
+                    logger.info(f"Незначительное уменьшение цены и новая дата билета {direction.id_direction} - {direction.destination_code} Оповещение отправлено")
+                    # Отправляю в группу
+                    return True
+                except DatabaseUpdateTicketError:
+                    return None
+
+
+    # Цена увеличилась
+    elif new_price > old_price:
+
+        # Цена увеличилась МЕНЕЕ, чем на 10%
+        if (old_price - new_price)/old_price * 100 <= settings.difference:
+            # Дата не изменилась
+            if new_departure_at == old_departure_at:
+                try:
+                    # Обновление данных билета
+                    await database.update_ticket(ticket=new_ticket, direction=direction)
+                    logger.info(f"Незначительное увеличение цены билета {direction.id_direction} - {direction.destination_code}")
+                    # НЕ отправляю в группу
+                    return None
+                except DatabaseUpdateTicketError:
+                    return None
+            else:
+                # TODO ЧЕРЕЗ ЛИМИТ
+                try:
+                    # Обновление данных билета
+                    await database.update_ticket(ticket=new_ticket, direction=direction)
+                    logger.info(f"Незначительное увеличение цены и новая дата билета {direction.id_direction} - {direction.destination_code} Оповещение отправлено")
+                    # Отправляю в группу
+                    return True
+                except DatabaseUpdateTicketError:
+                    return None
+
+
+        # Цена увеличилась БОЛЕЕ, чем на 10%, дату не учитываем
+        elif (old_price - new_price) / old_price * 100 >= settings.difference:
             try:
                 # Обновление данных билета
                 await database.update_ticket(ticket=new_ticket, direction=direction)
-                logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
+                logger.info(f"Значительное увеличение цены билета {direction.id_direction} - {direction.destination_code}")
+                # НЕ отправляю в группу
+                return None
             except DatabaseUpdateTicketError:
-                return
-            # Отправляю в группу
-            await notify_group(new_ticket=new_ticket, direction=direction, bot=bot)
-
-
-    # Цена увеличилась более, чем на 10%, дата не важна
-    elif (old_price - new_price) / old_price * 100 >= settings.difference:
-        # TODO обновить данные
-        try:
-            # Обновление данных билета
-            await database.update_ticket(ticket=new_ticket, direction=direction)
-            logger.info(f"Данные билета {direction.id_direction} - {direction.destination_code} обновлены")
-        except DatabaseUpdateTicketError:
-            return
+                return None
 
     else:
         # Произошло то, что в условиях не учлось
         logger.error(f" !!! ПРОИЗОШЛА не предусмотренная ситуация с изменениями в билетах! {dir(new_ticket)}\n\n{dir(old_ticket)}\n\n{dir(direction)}")
-        return
+        return None
+
 # async def checking_notification_limit(
 #         new_ticket: Ticket,
 #         old_ticket: Ticket,
@@ -226,12 +253,21 @@ async def checking_update(
 #     # TODO пока не придумал как
 #     pass
 
-async def notify_group(
-        new_ticket: Ticket,
-        # old_ticket: Ticket,
-        direction: Direction,
-        # settings: PriceSettings,
-        bot: BotService
-):
+async def create_notification(updated_tickets: list[Ticket], direction: Direction, bot: BotService):
+    msg_head = f"{direction.direction_from} ➡️ {direction.direction_to}"
+    msg_body = ""
+    for ticket in updated_tickets:
+        msg_body += (
+        f"<b>{ticket.destination_name} ({ticket.destination_code})</b>\n" #direction.destination_code
+        f"🛫 {ticket.departure_at}\n"
+        f"💳 {int(ticket.price)} ₽ | <a href='{ticket.link}'>купить билет</a>\n\n"
+        )
+    msg = (
+        f"{msg_head}\n\n"
+        f"{msg_body}"
+    )
+    await notify_group(msg=msg, bot=bot)
+
+async def notify_group(msg: str, bot: BotService):
     """ Отправка сообщения в канал """
-    await bot.send_alerts_to_group(ticket=new_ticket, direction=direction)
+    await bot.send_alerts_to_group(msg=msg)

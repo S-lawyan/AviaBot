@@ -14,7 +14,6 @@ from avia_api.models import Ticket
 async def command_start(message: types.Message, state: FSMContext) -> None:
     await message.answer(
         text=glossary.get_phrase("start_greeting", username=message.from_user.first_name), reply_markup=None,)
-    await database.get_directions()
 
 
 def register_handlers_client(dp: Dispatcher):
