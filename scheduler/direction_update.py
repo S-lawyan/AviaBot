@@ -284,3 +284,6 @@ async def create_notification(updated_tickets: list[Ticket], direction: Directio
 async def notify_group(msg: str, bot: BotService):
     """ Отправка сообщения в канал """
     await bot.send_alerts_to_group(msg=msg)
+
+async def reset_sent_posts() -> None:
+    await database.reset_limit()

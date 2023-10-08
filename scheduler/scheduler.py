@@ -10,6 +10,7 @@ from database.mysqldb import database
 from avia_api.models import Ticket
 from avia_api.adapter import TicketsApi
 from scheduler.direction_update import DirectionUpdate
+from scheduler.direction_update import reset_sent_posts
 
 
 
@@ -26,6 +27,9 @@ class ServiceScheduler:
     async def start(self):
         await self.scheduler.start_in_background()
         await self._schedule_direction_updater()
+        await self.scheduler.add_schedule(
+            reset_sent_posts, CronTrigger(hour=0, minute=1)
+        )
         # asyncio.create_task(self._monitor_settings_change())
 
     async def _schedule_direction_updater(self):

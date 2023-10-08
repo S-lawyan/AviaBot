@@ -101,6 +101,14 @@ class DataBaseService:
             logger.error(f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateDirectionSentPostsError()
 
+    async def reset_limit(self) -> None:
+        try:
+            query = f""" UPDATE directions SET sent_posts=0 """
+            await self.execute_query(query)
+        except Exception as e:
+            logger.error(f"Ошибка при сбросе sent_posts : {e}")
+            raise DatabaseUpdateDirectionSentPostsError()
+
     async def get_settings(self) -> PriceSettings:
         query = """ SELECT * FROM settings """
         result = await self.execute_query(query)
