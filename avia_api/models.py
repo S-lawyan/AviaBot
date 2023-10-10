@@ -14,6 +14,7 @@ class Ticket:
 
 @dataclass(frozen=True, kw_only=True)
 class Direction:
+    smail: str
     id_direction: int
     direction_from: str
     direction_to: str

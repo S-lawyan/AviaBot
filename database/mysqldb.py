@@ -4,7 +4,7 @@ from avia_bot.config import config
 from loguru import logger
 from avia_api.models import Ticket
 from datetime import datetime
-from avia_api.exceptions import DatabaseAddTicketError
+from avia_api.exceptions import DatabaseAddTicketError, DatabaseGetTicketError
 from avia_api.exceptions import DatabaseUpdateTicketError
 from avia_api.exceptions import DatabaseUpdateDirectionSentPostsError
 from avia_api.models import PriceSettings, Direction
@@ -61,7 +61,7 @@ class DataBaseService:
                 {int(ticket.price)}, 
                 '{ticket.departure_at}', 
                 '{ticket.link}', 
-                '{datetime.now().strftime("%Y.%m.%d • %H:%M")}'
+                '{datetime.now().strftime("%d.%m.%Y • %H:%M")}'
             ) """
             await self.execute_query(query)
         except Exception as e:
@@ -114,18 +114,51 @@ class DataBaseService:
         result = await self.execute_query(query)
         return pars_settings(result)
 
-    async def get_directions(self):
+    async def get_directions(self) -> list[Direction] | None:
         query = """ SELECT * FROM directions """
-        return await self.execute_query(query)
-
-    async def get_ticket_(self, direction: Direction) -> Ticket | None:
-        query = f""" SELECT * FROM tickets WHERE id_direction = {direction.id_direction} 
-        AND destination_code = '{direction.destination_code}' """
         result = await self.execute_query(query)
         if len(result) == 0:
             return None
         else:
-            return pars_ticket_(result)
+            return parse_directions(result)
+
+    async def get_ticket_(self, direction: Direction) -> Ticket | None:
+        try:
+            query = f""" SELECT * FROM tickets WHERE id_direction = {direction.id_direction} 
+            AND destination_code = '{direction.destination_code}' """
+            result = await self.execute_query(query)
+            if len(result) == 0:
+                return None
+            else:
+                return pars_ticket_(result)
+        except Exception as e:
+            logger.error(f"Ошибка при получении билета из БД : {e}")
+            raise DatabaseGetTicketError()
+
+def parse_directions(response) -> list[Direction]:
+    return [parse_direction(direction) for direction in response]
+
+def parse_direction(direction) -> Direction:
+    smail: str = direction[1]
+    id_direction: id = int(direction[2])
+    direction_from: str = direction[3]
+    direction_to: str = direction[4]
+    origin_code: str = direction[5]
+    destination_code: str = direction[6]
+    max_price: int = direction[7]
+    count_posts: int = direction[8]
+    sent_posts: int = direction[9]
+    return Direction(
+        smail=smail,
+        id_direction=id_direction,
+        direction_from=direction_from,
+        direction_to=direction_to,
+        origin_code=origin_code,
+        destination_code=destination_code,
+        max_price=max_price,
+        count_posts=count_posts,
+        sent_posts=sent_posts,
+    )
 
 def pars_ticket_(response) -> Ticket:
     data = response[0]
@@ -145,13 +178,6 @@ def pars_ticket_(response) -> Ticket:
         departure_at=departure_at,
         last_update=last_update
     )
-
-
-# def datetime_from_ticket(datetime_str: str) -> datetime:
-#     """Конвертация даты и времени из API ответа в читаемый формат"""
-#     return datetime.strptime(
-#         str(datetime_str)[: len(datetime_str) - 9], "%Y-%m-%dT%H:%M"
-#     )
 
 def pars_settings(response) -> PriceSettings:
     data = response[0]

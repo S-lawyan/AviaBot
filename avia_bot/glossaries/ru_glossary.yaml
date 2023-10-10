@@ -1,1 +1,9 @@
 start_greeting: Привет, $username!
+days_of_week:
+  - пн
+  - вт
+  - ср
+  - чт
+  - пт
+  - сб
+  - вс

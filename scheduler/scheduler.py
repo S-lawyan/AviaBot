@@ -41,15 +41,7 @@ class ServiceScheduler:
             trigger = IntervalTrigger(minutes=db_trigger)
         else:
             trigger = IntervalTrigger(seconds=db_trigger)
-            # trigger = DateTrigger(run_time=datetime.now() + timedelta(seconds=5))
         self.scheduler_update_directions = await self.scheduler.add_schedule(
             self.direction_update.update,
             trigger)
         pass
-
-    # async def _monitor_settings_change(self):
-    #     while True:
-    #         await self.settings_changed.wait()
-    #         await self._schedule_direction_updater()
-    #         self.settings_changed.clear()
-

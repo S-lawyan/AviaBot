@@ -9,7 +9,13 @@ class TicketsAPIError(TicketsError):
     """Request for some reason was invalid"""
     pass
 
-class TicketsParsingError(TicketsError):
+class InternalError(Exception):
+    pass
+
+class TicketsParsingError(InternalError):
+    pass
+
+class MissingTicketsError(InternalError):
     pass
 
 class DatabaseAddTicketError(Exception):
@@ -18,5 +24,11 @@ class DatabaseAddTicketError(Exception):
 class DatabaseUpdateTicketError(Exception):
     pass
 
+class DatabaseGetTicketError(Exception):
+    pass
+
 class DatabaseUpdateDirectionSentPostsError(Exception):
+    pass
+
+class AddNewTicket(Exception):
     pass

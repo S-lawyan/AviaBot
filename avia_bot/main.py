@@ -30,7 +30,6 @@ async def main():
         )
     try:
         http_session_maker = HttpSessionMaker()
-        # api = TicketsApi(http_session_maker)
         bot = BotService(config, http_session_maker)
         direction_update = DirectionUpdate(bot, http_session_maker)
         await database.create_pool()

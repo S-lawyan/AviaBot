@@ -24,8 +24,10 @@ class Glossary:
             return key
         else:
             text = self.data[self.language].get(key)
-            # TODO посмотреть как работает safe_substitute
-            return Template(text).safe_substitute(**kwargs)
+            if isinstance(text, str):
+                return Template(text).safe_substitute(**kwargs)
+            else:
+                return text
 
 glossary = Glossary(
     glossaries_path=os.path.dirname(__file__),
