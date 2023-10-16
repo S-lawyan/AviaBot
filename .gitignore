@@ -6,3 +6,5 @@ config.yaml
 logs/*
 TEST_FILE.py
 test.json
+pre-commit.bat
+.pre-commit-config.yaml
