@@ -7,7 +7,7 @@ from loguru import logger
 
 from avia_api.http_session import HttpSessionMaker
 from avia_bot.config import Settings
-from avia_bot.handlers import *
+from avia_bot.handlers import client
 
 # from aiogram.utils import executor
 

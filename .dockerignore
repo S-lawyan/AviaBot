@@ -1,0 +1,12 @@
+test.json
+TEST_FILE.py
+.mypy_cache
+README.md
+venv/
+.venv
+env/
+.env
+.mypy_cache/
+logs/
+.pre-commit-config.yaml
+config.yaml

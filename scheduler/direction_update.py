@@ -24,6 +24,7 @@ class DirectionUpdate:
     def __init__(self, bot: BotService, http_session_maker: HttpSessionMaker):
         self.bot = bot
         self.http_session_maker = http_session_maker
+        self.direction_update_lock = asyncio.Lock()
 
     async def update(self):
         logger.info("Старт проверки цен")
@@ -38,6 +39,8 @@ class DirectionUpdate:
                 direction=direction, api=api, bot=self.bot, settings=settings
             )
         logger.info(f"Проверка всех направлений завершена ({len(_directions)})")
+        logger.info(f"Жду 10 минут...")
+        await asyncio.sleep(600)
 
 
 async def update_direction(
