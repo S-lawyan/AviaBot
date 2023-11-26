@@ -63,6 +63,8 @@ class DataBaseService:
                 '{ticket.link}', 
                 '{datetime.now().strftime("%d.%m.%Y • %H:%M")}'
             ) """
+            ticket_id = await self.get_ticket_id(direction.id_direction, direction.destination_code)
+            await self.save_price(ticket=ticket, ticket_id=ticket_id)
             await self.execute_query(query)
         except Exception as e:
             logger.error(f"Ошибка при добавлении билета в БД: {e}")
@@ -83,9 +85,41 @@ class DataBaseService:
                 WHERE id_direction={direction.id_direction} 
                 and destination_code='{direction.destination_code}'
             """
+            ticket_id = await self.get_ticket_id(direction.id_direction, direction.destination_code)
+            await self.save_price(ticket=ticket, ticket_id=ticket_id)
             await self.execute_query(query)
         except Exception as e:
             logger.error(f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
+            raise DatabaseUpdateTicketError()
+
+    async def get_ticket_id(self, id_direction, destination_code) -> int:
+        try:
+            query = f"""
+                SELECT id FROM tickets
+                WHERE id_direction={id_direction} 
+                and destination_code='{destination_code}'
+            """
+            _id = await self.execute_query(query=query)
+            return _id[0][0]
+        except Exception as e:
+            logger.error(f"Ошибка при получении идентификатора билета {id_direction} - {destination_code} : {e}")
+            raise DatabaseUpdateTicketError()
+
+    async def save_price(self, ticket: Ticket, ticket_id: int):
+        try:
+            date_time = datetime.now().strftime("%Y.%m.%d • %H:%M")
+            query = f""" 
+                INSERT INTO price_history 
+                (ticket_id, price, datetime)
+                VALUES ( 
+                {ticket_id},
+                {int(ticket.price)},
+                '{date_time}'
+                )
+            """
+            await self.execute_query(query)
+        except Exception as e:
+            logger.error(f"Ошибка при добавлении цены билета {ticket_id} - {ticket.price} : {e}")
             raise DatabaseUpdateTicketError()
 
     async def update_limit(self, sent_posts: int, direction: Direction):
@@ -135,8 +169,10 @@ class DataBaseService:
             logger.error(f"Ошибка при получении билета из БД : {e}")
             raise DatabaseGetTicketError()
 
+
 def parse_directions(response) -> list[Direction]:
     return [parse_direction(direction) for direction in response]
+
 
 def parse_direction(direction) -> Direction:
     smail: str = direction[1]
@@ -160,6 +196,7 @@ def parse_direction(direction) -> Direction:
         sent_posts=sent_posts,
     )
 
+
 def pars_ticket_(response) -> Ticket:
     data = response[0]
     origin_name: str = data[2]
@@ -167,7 +204,7 @@ def pars_ticket_(response) -> Ticket:
     destination_code: str = data[4]
     price: float = float(data[5])
     departure_at: str = data[6]
-    link: str = data[7]
+    link: str = reformat_ulr(url=data[7])
     last_update: str = data[8]
     return Ticket(
         price=price,
@@ -179,6 +216,19 @@ def pars_ticket_(response) -> Ticket:
         last_update=last_update
     )
 
+
+def reformat_ulr(url: str) -> str:
+    _base = "https://tp.media/r?marker=491628&trs=273786&p=4114&u="
+    _end = "&campaign_id=100"
+    url = url.replace("&marker=491628", "")
+    url = url.replace(":", "%3A")
+    url = url.replace("/", "%2F")
+    url = url.replace("=", "%3D")
+    url = url.replace("&", "%26")
+    reformated = _base + url + _end
+    return reformated
+
+
 def pars_settings(response) -> PriceSettings:
     data = response[0]
     difference: int = data[1]
@@ -187,7 +237,6 @@ def pars_settings(response) -> PriceSettings:
         difference=difference,
         critical_difference=critical_difference
     )
-
 
 
 database = DataBaseService(config)

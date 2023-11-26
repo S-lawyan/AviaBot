@@ -17,7 +17,7 @@ class ServiceScheduler:
         await self.scheduler.start_in_background()
         await self._schedule_direction_updater()
         await self.scheduler.add_schedule(
-            reset_sent_posts, CronTrigger(hour=0, minute=5)
+            reset_sent_posts, CronTrigger(hour=11, minute=30) # On ubuntu as 8:30 pm MSK
         )
 
     async def _schedule_direction_updater(self):
