@@ -1,15 +1,17 @@
 from apscheduler.schedulers.async_ import AsyncScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 from scheduler.direction_update import DirectionUpdate
 from scheduler.direction_update import reset_sent_posts
-
+import asyncio
 
 class ServiceScheduler:
     def __init__(self, scheduler: AsyncScheduler, direction_update: DirectionUpdate):
         self.direction_update = direction_update
         self.scheduler = scheduler
         self.scheduler_update_directions = None
+
 
     async def start(self):
         await self.scheduler.start_in_background()

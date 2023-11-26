@@ -27,6 +27,7 @@ class DirectionUpdate:
         self.direction_update_lock = asyncio.Lock()
 
     async def update(self):
+        # async with self.direction_update_lock:
         logger.info("Старт проверки цен")
         api = TicketsApi(self.http_session_maker)
         settings: PriceSettings = await database.get_settings()

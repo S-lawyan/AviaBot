@@ -1,18 +1,13 @@
-from datetime import datetime
-
 import aiomysql
-from loguru import logger
-
-from avia_api.exceptions import DatabaseAddTicketError
-from avia_api.exceptions import DatabaseGetTicketError
-from avia_api.exceptions import DatabaseUpdateDirectionSentPostsError
-from avia_api.exceptions import DatabaseUpdateTicketError
-from avia_api.models import Direction
-from avia_api.models import PriceSettings
-from avia_api.models import Ticket
-from avia_bot.config import config
 from avia_bot.config import Settings
-
+from avia_bot.config import config
+from loguru import logger
+from avia_api.models import Ticket
+from datetime import datetime
+from avia_api.exceptions import DatabaseAddTicketError, DatabaseGetTicketError
+from avia_api.exceptions import DatabaseUpdateTicketError
+from avia_api.exceptions import DatabaseUpdateDirectionSentPostsError
+from avia_api.models import PriceSettings, Direction
 
 class DataBaseService:
     def __init__(self, _config: Settings):
@@ -29,7 +24,7 @@ class DataBaseService:
                 db=self.config.db.db_name,
                 minsize=1,
                 maxsize=10,
-                autocommit=True,
+                autocommit=True
             )
             logger.info("Pool was created successfully!")
         except Exception as e:
@@ -90,9 +85,7 @@ class DataBaseService:
             """
             await self.execute_query(query)
         except Exception as e:
-            logger.error(
-                f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}"
-            )
+            logger.error(f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateTicketError()
 
     async def update_limit(self, sent_posts: int, direction: Direction):
@@ -105,9 +98,7 @@ class DataBaseService:
             # and destination_code='{direction.destination_code}'
             await self.execute_query(query)
         except Exception as e:
-            logger.error(
-                f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}"
-            )
+            logger.error(f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateDirectionSentPostsError()
 
     async def reset_limit(self) -> None:
@@ -144,10 +135,8 @@ class DataBaseService:
             logger.error(f"Ошибка при получении билета из БД : {e}")
             raise DatabaseGetTicketError()
 
-
 def parse_directions(response) -> list[Direction]:
     return [parse_direction(direction) for direction in response]
-
 
 def parse_direction(direction) -> Direction:
     smail: str = direction[1]
@@ -171,7 +160,6 @@ def parse_direction(direction) -> Direction:
         sent_posts=sent_posts,
     )
 
-
 def pars_ticket_(response) -> Ticket:
     data = response[0]
     origin_name: str = data[2]
@@ -188,15 +176,18 @@ def pars_ticket_(response) -> Ticket:
         destination_code=destination_code,
         link=link,
         departure_at=departure_at,
-        last_update=last_update,
+        last_update=last_update
     )
-
 
 def pars_settings(response) -> PriceSettings:
     data = response[0]
     difference: int = data[1]
     critical_difference: int = data[2]
-    return PriceSettings(difference=difference, critical_difference=critical_difference)
+    return PriceSettings(
+        difference=difference,
+        critical_difference=critical_difference
+    )
+
 
 
 database = DataBaseService(config)

@@ -12,7 +12,6 @@ class Ticket:
     departure_at: datetime | str
     last_update: str | None
 
-
 @dataclass(frozen=True, kw_only=True)
 class Direction:
     smail: str
@@ -24,7 +23,6 @@ class Direction:
     max_price: int
     count_posts: int
     sent_posts: int
-
 
 @dataclass(frozen=True, kw_only=True)
 class PriceSettings:

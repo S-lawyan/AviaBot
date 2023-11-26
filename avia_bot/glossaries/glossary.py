@@ -1,9 +1,7 @@
 import os
-from string import Template
-
-import yaml
 from loguru import logger
-
+from string import Template
+import yaml
 from avia_bot.config import config
 
 
@@ -15,16 +13,10 @@ class Glossary:
     ):
         self.language = language
         self.data: dict = {}
-        files = [
-            os.path.join(glossaries_path, f)
-            for f in os.listdir(glossaries_path)
-            if f.endswith(".yaml")
-        ]
+        files = [os.path.join(glossaries_path, f) for f in os.listdir(glossaries_path) if f.endswith(".yaml")]
         for file in files:
             with open(file, "r", encoding="utf8") as fgl:
-                self.data[language]: dict = yaml.load(
-                    stream=fgl, Loader=yaml.FullLoader
-                )
+                self.data[language]: dict = yaml.load(stream=fgl, Loader=yaml.FullLoader)
 
     def get_phrase(self, key, **kwargs):
         if key not in self.data[self.language]:
@@ -37,9 +29,9 @@ class Glossary:
             else:
                 return text
 
-
 glossary = Glossary(
-    glossaries_path=os.path.dirname(__file__), language=config.bot.language
+    glossaries_path=os.path.dirname(__file__),
+    language=config.bot.language
 )
 
 __all__ = ["glossary"]

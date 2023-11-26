@@ -1,6 +1,5 @@
 from aiohttp import ClientSession
 
-
 class HttpSessionMaker:
     def __init__(self):
         self.session: ClientSession | None = None
