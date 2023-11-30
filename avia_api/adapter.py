@@ -15,6 +15,7 @@ from avia_api.exceptions import (
     MissingTicketsError
 )
 
+
 class TicketsApi:
     def __init__(self, http_session_maker):
         self.session: ClientSession = http_session_maker()
@@ -41,7 +42,8 @@ class TicketsApi:
             raise TicketApiConnectionError()
         json_response = json.loads(response)
         if "error" in response:
-            logger.error(f'Ошибка при получении билета: ошибка {json_response["error"]}, направление: из {origin} в {destination}')
+            logger.error(
+                f'Ошибка при получении билета: ошибка {json_response["error"]}, направление: из {origin} в {destination}')
             raise TicketsAPIError()
         elif json_response["data"] == []:
             logger.error(f"Нет билетов на {origin} - {destination} : {json_response}")
@@ -50,20 +52,20 @@ class TicketsApi:
 
 
 async def get_ticket_response(
-    session: ClientSession,
-    origin,
-    destination,
-    locale,
-    currency,
-    token
+        session: ClientSession,
+        origin,
+        destination,
+        locale,
+        currency,
+        token
 ) -> str:
     requests_url = "https://api.travelpayouts.com/aviasales/v3/get_special_offers"
     params = {
-    "origin": origin,
-    "destination": destination,
-    "locale": locale,
-    "currency": currency,
-    "token": token
+        "origin": origin,
+        "destination": destination,
+        "locale": locale,
+        "currency": currency,
+        "token": token
     }
 
     async with session.get(requests_url, params=params) as response:
@@ -77,8 +79,8 @@ def parse_ticket(json_response) -> Ticket:
     json_ticket = json_response["data"][0]
     # Получение информации о билете
     price: float = float(json_ticket["price"])
-    origin_name: str = json_ticket["origin_name_declined"] # origin_name
-    destination_name: str = json_ticket["destination_name"] #  destination_name_declined
+    origin_name: str = json_ticket["origin_name_declined"]  # origin_name
+    destination_name: str = json_ticket["destination_name"]  # destination_name_declined
     destination_code: str = json_ticket["destination"]
     link: str = "https://www.aviasales.ru" + json_ticket["link"] + "&marker=491628"
     departure_at: str = datetime_from_ticket(json_ticket["departure_at"])
@@ -101,4 +103,3 @@ def datetime_from_ticket(datetime_str: str) -> str:
     day_of_week = days[day_of_week_index]
     formatted_datetime = input_datetime.strftime("%d.%m.%Y • %H:%M")
     return f"{formatted_datetime} • {day_of_week}"
-

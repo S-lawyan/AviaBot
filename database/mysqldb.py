@@ -4,10 +4,11 @@ from avia_bot.config import config
 from loguru import logger
 from avia_api.models import Ticket
 from datetime import datetime
-from avia_api.exceptions import DatabaseAddTicketError, DatabaseGetTicketError
+from avia_api.exceptions import DatabaseAddTicketError, DatabaseGetTicketError, UpdateMaxPriceDirection
 from avia_api.exceptions import DatabaseUpdateTicketError
 from avia_api.exceptions import DatabaseUpdateDirectionSentPostsError
 from avia_api.models import PriceSettings, Direction
+
 
 class DataBaseService:
     def __init__(self, _config: Settings):
@@ -63,8 +64,9 @@ class DataBaseService:
                 '{ticket.link}', 
                 '{datetime.now().strftime("%d.%m.%Y • %H:%M")}'
             ) """
-            ticket_id = await self.get_ticket_id(direction.id_direction, direction.destination_code)
-            await self.save_price(ticket=ticket, ticket_id=ticket_id)
+            await self.save_price(id_direction=direction.id_direction, destination_code=direction.destination_code,
+                                  ticket=ticket)
+            await self.calculating_max_price(direction=direction)
             await self.execute_query(query)
         except Exception as e:
             logger.error(f"Ошибка при добавлении билета в БД: {e}")
@@ -85,41 +87,102 @@ class DataBaseService:
                 WHERE id_direction={direction.id_direction} 
                 and destination_code='{direction.destination_code}'
             """
-            ticket_id = await self.get_ticket_id(direction.id_direction, direction.destination_code)
-            await self.save_price(ticket=ticket, ticket_id=ticket_id)
+            await self.save_price(id_direction=direction.id_direction, destination_code=direction.destination_code,
+                                  ticket=ticket)
+            await self.calculating_max_price(direction=direction)
             await self.execute_query(query)
         except Exception as e:
-            logger.error(f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
+            logger.error(
+                f"Ошибка при обновлении данных билета {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateTicketError()
 
-    async def get_ticket_id(self, id_direction, destination_code) -> int:
+    async def get_last_20_price(self, id_direction: int, destination_code: str) -> list:
         try:
             query = f"""
-                SELECT id FROM tickets
-                WHERE id_direction={id_direction} 
-                and destination_code='{destination_code}'
+            SELECT 
+                price
+            FROM price_history
+            WHERE id_direction={id_direction} AND destination_code='{destination_code}'
+            ORDER BY datetime DESC
+            LIMIT 20;
             """
-            _id = await self.execute_query(query=query)
-            return _id[0][0]
+            _result = await self.execute_query(query)
+            result = [int(item[0]) for item in _result]
+            return result
         except Exception as e:
-            logger.error(f"Ошибка при получении идентификатора билета {id_direction} - {destination_code} : {e}")
-            raise DatabaseUpdateTicketError()
+            logger.error(
+                f"Ошибка при получении цен билета из истории {id_direction} - {destination_code} : {e}")
+            raise DatabaseGetTicketError()
 
-    async def save_price(self, ticket: Ticket, ticket_id: int):
+    async def get_coefficient(self, id_direction: int, destination_code: str) -> int:
+        query = f"""
+            SELECT coefficient
+            FROM directions
+            WHERE id_direction={id_direction} AND destination_code='{destination_code}'
+        """
+        result = await self.execute_query(query)
+        return result[0][0]
+
+    async def calculating_max_price(self, direction: Direction):
+        last_prices: list = await self.get_last_20_price(id_direction=direction.id_direction,
+                                                         destination_code=direction.destination_code)
+        if len(last_prices) < 20:
+            return
+        else:
+            coefficient: int = await self.get_coefficient(id_direction=direction.id_direction,
+                                                          destination_code=direction.destination_code)
+            count_prices = len(last_prices)
+            arithmetic_mean = int(sum(last_prices) / count_prices)
+            current_max_price = arithmetic_mean + (arithmetic_mean * (coefficient / 100))
+            await self.update_max_price(price=int(current_max_price), id_direction=direction.id_direction,
+                                        destination_code=direction.destination_code)
+
+    async def update_max_price(self, price: int, id_direction: int, destination_code: str):
         try:
-            date_time = datetime.now().strftime("%Y.%m.%d • %H:%M")
-            query = f""" 
-                INSERT INTO price_history 
-                (ticket_id, price, datetime)
-                VALUES ( 
-                {ticket_id},
-                {int(ticket.price)},
-                '{date_time}'
-                )
+            query = f"""
+            UPDATE directions
+            SET
+            max_price = {price}
+            WHERE id_direction={id_direction} AND destination_code='{destination_code}'
             """
             await self.execute_query(query)
+            logger.info(
+                f"Обновление максимальной цены билета {id_direction} - {destination_code}")
         except Exception as e:
-            logger.error(f"Ошибка при добавлении цены билета {ticket_id} - {ticket.price} : {e}")
+            logger.error(
+                f"Ошибка при обновлении максимальной цены билета {id_direction} - {destination_code} : {e}")
+            raise UpdateMaxPriceDirection()
+
+    # async def get_ticket_id(self, id_direction, destination_code) -> int:
+    #     try:
+    #         query = f"""
+    #             SELECT id FROM tickets
+    #             WHERE id_direction={id_direction}
+    #             and destination_code='{destination_code}'
+    #         """
+    #         _id = await self.execute_query(query=query)
+    #         return _id[0][0]
+    #     except Exception as e:
+    #         logger.error(f"Ошибка при получении идентификатора билета {id_direction} - {destination_code} : {e}")
+    #         raise DatabaseUpdateTicketError()
+
+    async def save_price(self, id_direction: int, destination_code: str, ticket: Ticket):
+        try:
+            query = f""" 
+                INSERT INTO price_history 
+                (id_direction, destination_code, price, datetime)
+                VALUES ( 
+                {id_direction},
+                '{destination_code}',
+                {int(ticket.price)},
+                NOW()
+                )
+            """
+            # '{date_time}'
+            await self.execute_query(query)
+        except Exception as e:
+            logger.error(
+                f"Ошибка при добавлении цены билета {id_direction} - {destination_code} : {ticket.price} : {e}")
             raise DatabaseUpdateTicketError()
 
     async def update_limit(self, sent_posts: int, direction: Direction):
@@ -132,7 +195,8 @@ class DataBaseService:
             # and destination_code='{direction.destination_code}'
             await self.execute_query(query)
         except Exception as e:
-            logger.error(f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}")
+            logger.error(
+                f"Ошибка при обновлении sent_posts {direction.id_direction} - {direction.destination_code} : {e}")
             raise DatabaseUpdateDirectionSentPostsError()
 
     async def reset_limit(self) -> None:

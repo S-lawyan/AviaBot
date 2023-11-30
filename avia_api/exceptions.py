@@ -32,3 +32,6 @@ class DatabaseUpdateDirectionSentPostsError(Exception):
 
 class AddNewTicket(Exception):
     pass
+
+class UpdateMaxPriceDirection(Exception):
+    pass
