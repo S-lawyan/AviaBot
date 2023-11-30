@@ -287,13 +287,13 @@ async def checking_notification_limit(
 
 async def notify_group(ticket: Ticket, direction: Direction, bot: BotService) -> None:
     """Отправка сообщения в канал"""
-    msg = (
-        f"{direction.smail} {direction.direction_to} из {ticket.origin_name}\n\n"
+    text = (
+        f"{direction.smail} {direction.direction_to} из {ticket.origin_name}\n"
         f"<b>{ticket.destination_name} ({ticket.destination_code})</b>\n"  # direction.destination_code
         f"🛫 {ticket.departure_at}\n"
-        f"💳 {int(ticket.price)} ₽ | <a href='{ticket.link}'>купить билет</a>\n\n"
+        f"💳 <b>{int(ticket.price)} ₽</b>"
     )
-    await bot.send_alerts_to_group(msg=msg)
+    await bot.send_alerts_to_group(text=text, ulr=ticket.link, IATA=ticket.destination_code)
 
 
 async def reset_sent_posts() -> None:
@@ -302,6 +302,13 @@ async def reset_sent_posts() -> None:
         logger.info("Значения sent_posts сброшены")
     except DatabaseUpdateDirectionSentPostsError:
         pass
+
+# text = (
+#     f"{direction.smail} {direction.direction_to} из {ticket.origin_name}\n\n"
+#     f"<b>{ticket.destination_name} ({ticket.destination_code})</b>\n"  # direction.destination_code
+#     f"🛫 {ticket.departure_at}\n"
+#     f"💳 {int(ticket.price)} ₽ | <a href='{ticket.link}'>купить билет</a>\n\n"
+# )
 
 
 # ДАННЫЕ ЗАКОММЕНТИРОВАННЫЕ СТРОКИ БЫЛИ ИСПОЛЬЗОВАНЫ ДЛЯ ОТПРАВКИ СГРУППИРОВАННЫХ ПО НАПРАВЛЕНИЮ БИЛЕТОВ

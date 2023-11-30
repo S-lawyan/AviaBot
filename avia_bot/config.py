@@ -51,11 +51,16 @@ def load_config(config_path: str) -> Settings:
     except Exception as e:
         logger.error(f"Необычная ошибка при загрузке конфигурационного файла: {e}")
 
+
 # Получаю директорию бота
 BOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Получаю директорию проекта
 PROJECT_DIR = os.path.dirname(BOT_DIR)
 # Подгружаю конфиги и запускаю бота
-config: Settings = load_config(config_path=os.path.join(PROJECT_DIR,"config.yaml"))
+config: Settings = load_config(config_path=os.path.join(PROJECT_DIR, "config.yaml"))
 
-__all__ = ["config", "Settings"]
+# Директория с фотками
+PICTURES_DIR = os.path.join(PROJECT_DIR, "database")
+PICTURES_DIR = os.path.join(PICTURES_DIR, "pictures")
+
+__all__ = ["config", "Settings",  "PICTURES_DIR"]

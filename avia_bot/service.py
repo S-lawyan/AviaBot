@@ -1,18 +1,31 @@
+import os
+import random
 
 from aiogram import Dispatcher
 from aiogram import Bot, types
 # from aiogram.utils import executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from loguru import logger
-from avia_bot.config import Settings
+from avia_bot.config import Settings, PICTURES_DIR
 from avia_bot.handlers import *
 from avia_api.http_session import HttpSessionMaker
-from avia_api.adapter import TicketsApi
-from avia_api.models import Ticket
-from avia_api.models import Direction
 from aiohttp import ClientSession
+from avia_bot.keyboards import kb
 
 
+async def get_picture(IATA: str):
+    try:
+        IATA_dir = os.path.join(PICTURES_DIR, IATA)
+        files = os.listdir(IATA_dir)
+        images = [file for file in files if file.endswith(('.jpg', '.jpeg', '.png'))]
+        if len(images) == 0:
+            raise FileNotFoundError()
+    except FileNotFoundError:
+        files = os.listdir(os.path.join(PICTURES_DIR, "ALL"))
+        images = [file for file in files if file.endswith(('.jpg', '.jpeg', '.png'))]
+    random_image = random.choice(images)
+    read_file = open(os.path.join(IATA_dir, random_image), "rb")
+    return read_file
 
 
 class BotService:
@@ -37,10 +50,12 @@ class BotService:
     async def stop_bot(self) -> None:
         self.dp.stop_polling()
 
-    async def send_alerts_to_group(self, msg: str) -> None:
+    async def send_alerts_to_group(self, text: str, ulr: str, IATA: str) -> None:
         channel_id: int = self.config.bot.channel_id
         # TODO отправка в канал по channel_id шаблонного сообщения про билетик
-        await self.bot.send_message(chat_id=channel_id, text=msg, disable_web_page_preview=True, parse_mode="html")
+        picture = await get_picture(IATA=IATA)
+        await self.bot.send_photo(chat_id=channel_id, caption=text, photo=picture, reply_markup=await kb.pay_kb(url=ulr), parse_mode="html")
+        # await self.bot.send_message(chat_id=channel_id, text=text, disable_web_page_preview=True, parse_mode="html")
 
 
 
