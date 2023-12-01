@@ -1,6 +1,10 @@
 version: '3.7'
 services:
-  bot:
-    build: .
-    command: python -m avia_bot/main.py
+  app:
+    image: ...
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./pictures:/app/database/pictures
+    command: python avia_bot/main.py
     restart: always
+
