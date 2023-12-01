@@ -3,7 +3,6 @@ import random
 
 from aiogram import Dispatcher
 from aiogram import Bot, types
-# from aiogram.utils import executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from loguru import logger
 from avia_bot.config import Settings, PICTURES_DIR
@@ -21,10 +20,12 @@ async def get_picture(IATA: str):
         if len(images) == 0:
             raise FileNotFoundError()
     except FileNotFoundError:
-        files = os.listdir(os.path.join(PICTURES_DIR, "ALL"))
+        IATA_dir = os.path.join(PICTURES_DIR, "ALL")
+        files = os.listdir(IATA_dir)
         images = [file for file in files if file.endswith(('.jpg', '.jpeg', '.png'))]
     random_image = random.choice(images)
-    read_file = open(os.path.join(IATA_dir, random_image), "rb")
+    file_path = os.path.join(IATA_dir, random_image)
+    read_file = open(file=file_path, mode="rb").read()
     return read_file
 
 

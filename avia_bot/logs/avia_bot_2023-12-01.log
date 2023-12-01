@@ -1,0 +1,105 @@
+2023-12-01 13:24:12.763 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 13:24:12.814 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 13:24:13.193 | INFO     | avia_bot.service:start_bot:47 - The bot is running!
+2023-12-01 13:24:34.922 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 13:24:34.946 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 13:24:35.315 | INFO     | avia_bot.service:start_bot:47 - The bot is running!
+2023-12-01 13:24:47.891 | INFO     | scheduler.direction_update:checking_update:136 - Обновление даты билета 3 - AER : 4508.0 == 4508.0 and 06.03.2024 != 24.03.2024
+2023-12-01 13:24:59.052 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AUH : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:00.232 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - DXB : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:02.615 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AAN : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:05.025 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - FJR : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:10.304 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 10 - EVN : 7376.0 >= 6000
+2023-12-01 13:25:16.416 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на DME - LED : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:22.779 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - CNX : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 13:25:57.230 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 13:25:57.256 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 13:25:57.639 | INFO     | avia_bot.service:start_bot:47 - The bot is running!
+2023-12-01 13:26:02.847 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 1 - LCA : 13668.0 < 103668.0 and 86.81560365783076 >= 20
+2023-12-01 13:26:24.989 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 2 - IST : 4398.0 < 40398.0 and 89.11332244170504 >= 20
+2023-12-01 22:01:48.761 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 22:01:48.786 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 22:01:49.544 | INFO     | avia_bot.service:start_bot:48 - The bot is running!
+2023-12-01 22:02:04.571 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 1 - LCA : 12671.0 < 23668.0 and 46.463579516646945 >= 20
+2023-12-01 22:02:42.367 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 22:02:42.404 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 22:02:49.511 | INFO     | avia_bot.service:start_bot:48 - The bot is running!
+2023-12-01 22:03:08.155 | INFO     | scheduler.direction_update:checking_update:202 - Незначительное уменьшение цены и новая дата билета 1 - PFO Оповещение отправлено  : 5.528782966792255 <= 10 and 12.12.2023 != 08.12.2023
+2023-12-01 22:03:09.746 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 2 - BJV : 14463.0 >= 9000
+2023-12-01 22:03:11.301 | INFO     | scheduler.direction_update:checking_update:236 - Незначительное увеличение цены и новая дата билета 2 - IZM Оповещение отправлено : 7967.0 > 7380.0 and -7.953929539295393 <= 10 and 06.12.2023 != 05.12.2023
+2023-12-01 22:03:12.928 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 2 - IST : 4752.0 >= 4650
+2023-12-01 22:03:14.454 | INFO     | scheduler.direction_update:checking_update:225 - Незначительное увеличение цены билета 2 - AYT : 3844.0 > 3785.0 and 1.5348595213319458 <= 10 and 14.12.2023 == 14.12.2023
+2023-12-01 22:03:16.076 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 2 - GZP : 2235.0 < 3215.0 and 30.48211508553655 >= 20
+2023-12-01 22:06:21.779 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 22:06:21.800 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 22:06:22.248 | INFO     | avia_bot.service:start_bot:49 - The bot is running!
+2023-12-01 22:06:29.935 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 2 - BJV : 14463.0 >= 9000
+2023-12-01 22:06:35.944 | INFO     | scheduler.direction_update:checking_update:225 - Незначительное увеличение цены билета 2 - GZP : 2236.0 > 2235.0 and 0.044722719141323794 <= 10 and 04.12.2023 == 04.12.2023
+2023-12-01 22:06:37.418 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 3 - LED : 3793.0 >= 2100
+2023-12-01 22:06:40.295 | INFO     | scheduler.direction_update:checking_update:191 - Незначительное уменьшение цены билета 3 - KGD : 3.430749682337993 <= 10 and 03.12.2023 == 03.12.2023
+2023-12-01 22:06:41.915 | INFO     | scheduler.direction_update:checking_update:225 - Незначительное увеличение цены билета 3 - MRV : 3950.0 > 3890.0 and 1.5189873417721518 <= 10 and 29.03.2024 == 29.03.2024
+2023-12-01 22:06:43.500 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 4 - HKT : 32543.0 >= 30000
+2023-12-01 22:06:45.118 | INFO     | scheduler.direction_update:checking_update:202 - Незначительное уменьшение цены и новая дата билета 5 - DPS Оповещение отправлено  : 0.7082724985244323 <= 10 and 18.03.2024 != 11.03.2024
+2023-12-01 22:06:47.119 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 6 - MIL : 13665.0 >= 12000
+2023-12-01 22:06:50.584 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 6 - VCE : 16324.0 >= 15000
+2023-12-01 22:06:52.367 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 6 - ROM : 13689.0 >= 12000
+2023-12-01 22:06:53.902 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 6 - NAP : 28747.0 >= 14000
+2023-12-01 22:06:55.186 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AUH : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:06:56.956 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 7 - DXB : 20090.0 >= 15000
+2023-12-01 22:06:58.571 | INFO     | scheduler.direction_update:checking_update:255 - Значительное увеличение цены билета 7 - SHJ : 13205.0 > 10588.0 and 19.818250662627793 >= 10
+2023-12-01 22:06:59.848 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AAN : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:07:02.170 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 7 - RKT : 34285.0 >= 30000
+2023-12-01 22:07:03.411 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - FJR : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:07:05.007 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 8 - SEZ : 32492.0 >= 30000
+2023-12-01 22:07:06.514 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 9 - MLE : 27449.0 >= 20000
+2023-12-01 22:07:08.053 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 10 - LWN : 7767.0 >= 4500
+2023-12-01 22:07:09.616 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 10 - EVN : 7378.0 >= 6000
+2023-12-01 22:07:11.383 | INFO     | scheduler.direction_update:checking_update:236 - Незначительное увеличение цены и новая дата билета 11 - MSQ Оповещение отправлено : 2335.0 > 2320.0 and -0.646551724137931 <= 10 and 19.12.2023 != 13.12.2023
+2023-12-01 22:07:15.254 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 11 - GME : 4314.0 >= 4000
+2023-12-01 22:07:17.663 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 12 - NQZ : 12293.0 >= 10000
+2023-12-01 22:07:20.782 | INFO     | scheduler.direction_update:checking_update:255 - Значительное увеличение цены билета 12 - SCO : 6398.0 > 5394.0 and 15.692403876211317 >= 10
+2023-12-01 22:07:22.923 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на DME - LED : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:07:25.058 | INFO     | scheduler.direction_update:checking_update:202 - Незначительное уменьшение цены и новая дата билета 14 - BKK Оповещение отправлено  : 0.31465388073119566 <= 10 and 13.09.2024 != 06.09.2024
+2023-12-01 22:07:28.745 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 14 - USM : 37005.0 >= 35000
+2023-12-01 22:07:30.526 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 14 - KBV : 51768.0 >= 35000
+2023-12-01 22:07:33.930 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 14 - CNX : 51371.0 >= 35000
+2023-12-01 22:07:36.842 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 3 - CMB : 33664.0 >= 25000
+2023-12-01 22:07:39.893 | INFO     | scheduler.direction_update:checking_update:191 - Незначительное уменьшение цены билета 15 - MRU : 0.104339887182497 <= 10 and 05.12.2023 == 05.12.2023
+2023-12-01 22:07:45.092 | INFO     | scheduler.direction_update:checking_update:172 - Значительное уменьшение цены билета 16 - MEL Оповещение отправлено : 19.125804304415354 >= 10
+2023-12-01 22:07:48.315 | INFO     | scheduler.direction_update:checking_update:202 - Незначительное уменьшение цены и новая дата билета 17 - SYD Оповещение отправлено  : 0.7677254252596718 <= 10 and 05.12.2023 != 12.12.2023
+2023-12-01 22:07:51.930 | INFO     | scheduler.direction_update:checking_update:172 - Значительное уменьшение цены билета 19 - TBS Оповещение отправлено : 12.23529411764706 >= 10
+2023-12-01 22:07:54.173 | INFO     | scheduler.direction_update:checking_update:236 - Незначительное увеличение цены и новая дата билета 19 - BUS Оповещение отправлено : 7503.0 > 7501.0 and -0.026663111585121982 <= 10 and 19.10.2024 != 10.10.2024
+2023-12-01 22:07:55.735 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 20 - VIE : 19150.0 >= 10000
+2023-12-01 22:07:57.243 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 21 - SOF : 14231.0 >= 10000
+2023-12-01 22:07:58.953 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 22 - BUH : 19123.0 >= 10000
+2023-12-01 22:08:02.059 | INFO     | scheduler.direction_update:checking_update:225 - Незначительное увеличение цены билета 23 - LON : 8536.0 > 8532.0 and 0.046860356138706656 <= 10 and 19.12.2023 == 19.12.2023
+2023-12-01 22:08:03.766 | INFO     | scheduler.direction_update:checking_update:191 - Незначительное уменьшение цены билета 23 - MAN : 6.573852870911937 <= 10 and 14.12.2023 == 14.12.2023
+2023-12-01 22:08:06.155 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 24 - STO : 16308.0 >= 12000
+2023-12-01 22:08:55.351 | INFO     | database.mysqldb:create_pool:30 - Pool was created successfully!
+2023-12-01 22:08:55.377 | INFO     | scheduler.direction_update:update:31 - Старт проверки цен
+2023-12-01 22:08:55.741 | INFO     | avia_bot.service:start_bot:49 - The bot is running!
+2023-12-01 22:09:03.501 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 2 - IZM : 7967.0 < 17967.0 and 55.657594478766626 >= 20
+2023-12-01 22:09:38.524 | INFO     | scheduler.direction_update:checking_update:136 - Обновление даты билета 3 - AER : 4508.0 == 4508.0 and 27.03.2024 != 06.03.2024
+2023-12-01 22:09:41.280 | INFO     | scheduler.direction_update:checking_update:158 - Критическое уменьшение цены билета 3 - MRV : 3950.0 < 33950.0 and 88.36524300441826 >= 20
+2023-12-01 22:09:49.572 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 6 - ROM : 13689.0 >= 12000
+2023-12-01 22:09:52.053 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AUH : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:09:56.656 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - AAN : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:09:59.207 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - FJR : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:10:10.924 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на DME - LED : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:10:18.925 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 3 - KZN : 2255.0 >= 1900
+2023-12-01 22:10:40.720 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 25 - BER : 13775.0 >= 12000
+2023-12-01 22:10:42.339 | INFO     | scheduler.direction_update:checking_update:172 - Значительное уменьшение цены билета 25 - FRA Оповещение отправлено : 17.286630488406512 >= 10
+2023-12-01 22:10:43.631 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - CGN : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:10:45.253 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 26 - BTS : 17246.0 >= 12000
+2023-12-01 22:10:46.925 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 27 - SSH : 19682.0 >= 12000
+2023-12-01 22:10:48.480 | ERROR    | avia_api.adapter:get_ticket:45 - Ошибка при получении билета: ошибка unreachable external service error: airport HGD is not flightable, направление: из MOW в HGD
+2023-12-01 22:10:49.950 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 28 - BCN : 26352.0 >= 12000
+2023-12-01 22:10:51.515 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 28 - AGP : 31353.0 >= 12000
+2023-12-01 22:10:53.132 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 28 - VLC : 14426.0 >= 12000
+2023-12-01 22:10:54.745 | INFO     | scheduler.direction_update:checking_update:236 - Незначительное увеличение цены и новая дата билета 29 - BRU Оповещение отправлено : 11024.0 > 11020.0 and -0.03629764065335753 <= 10 and 12.12.2023 != 06.12.2023
+2023-12-01 22:10:56.451 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 30 - OSL : 12202.0 >= 12000
+2023-12-01 22:10:58.496 | ERROR    | avia_api.adapter:get_ticket:45 - Ошибка при получении билета: ошибка bad request: unknown location code `ТLV`, направление: из MOW в ТLV
+2023-12-01 22:10:59.934 | ERROR    | avia_api.adapter:get_ticket:49 - Нет билетов на MOW - ETH : {'data': [], 'currency': 'rub', 'success': True}
+2023-12-01 22:11:01.441 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 32 - WAW : 13124.0 >= 12000
+2023-12-01 22:11:02.963 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 33 - MRS : 20994.0 >= 12000
+2023-12-01 22:11:08.385 | INFO     | scheduler.direction_update:checking_update:122 - Превышение максимальной цена, обновление БД 33 - NCE : 13155.0 >= 12000
